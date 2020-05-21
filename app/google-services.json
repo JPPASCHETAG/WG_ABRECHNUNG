@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "53405458226",
+    "firebase_url": "https://wg-abrechnung.firebaseio.com",
+    "project_id": "wg-abrechnung",
+    "storage_bucket": "wg-abrechnung.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:53405458226:android:286389fc8ae2bf2637c12b",
+        "android_client_info": {
+          "package_name": "com.wgAbrechnung.wg_abrechnung"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "53405458226-o0u4v5gcpq2jkb2qg87qdpqvn14v4003.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFop-_hL3eoDqwZLoV9NB9ufG7b1RuWU4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "53405458226-o0u4v5gcpq2jkb2qg87qdpqvn14v4003.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
