@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -23,34 +24,36 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.wgAbrechnung.wg_abrechnung.CustomListAdapter;
+import com.wgAbrechnung.wg_abrechnung.FireMissilesDialogFragment;
 import com.wgAbrechnung.wg_abrechnung.HomeListAdapter;
 import com.wgAbrechnung.wg_abrechnung.R;
 
 import java.util.ArrayList;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements View.OnClickListener{
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String CURRENT_PROJEKT = "";
-    private HomeViewModel homeViewModel;
 
-    ListView listView;
+    private ListView listView;
+    private Button btnNewEntry;
 
-    ArrayList<String> ListZweck = new ArrayList<String>();
-    ArrayList<String> ListDatum = new ArrayList<String>();
-    ArrayList<String> ListName = new ArrayList<String>();
-    ArrayList<String> ListBetrag = new ArrayList<String>();
+    private ArrayList<String> ListZweck = new ArrayList<String>();
+    private ArrayList<String> ListDatum = new ArrayList<String>();
+    private ArrayList<String> ListName = new ArrayList<String>();
+    private ArrayList<String> ListBetrag = new ArrayList<String>();
 
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel.class);
+        HomeViewModel homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
         CURRENT_PROJEKT = sharedPreferences.getString("CURRENT_PROJEKT", "");
 
         listView = root.findViewById(R.id.HomeListView);
+        btnNewEntry = root.findViewById(R.id.NEW_ENTRY);
+        btnNewEntry.setOnClickListener(this);
 
         System.out.println(CURRENT_PROJEKT);
         db.collection(CURRENT_PROJEKT)
@@ -101,5 +104,17 @@ public class HomeFragment extends Fragment {
                 });
 
         return root;
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.NEW_ENTRY:
+                System.out.println("Button gevlivkt");
+                FireMissilesDialogFragment dialog = new FireMissilesDialogFragment();
+                dialog.show(getFragmentManager(), "missiles");
+                break;
+        }
     }
 }

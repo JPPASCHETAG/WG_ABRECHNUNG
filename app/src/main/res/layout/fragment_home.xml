@@ -28,9 +28,10 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="60dp"
         android:background="@drawable/add_circle_black_18dp"
+        android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        
+
     </Button>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
