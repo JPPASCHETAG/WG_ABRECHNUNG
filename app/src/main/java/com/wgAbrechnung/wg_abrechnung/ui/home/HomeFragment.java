@@ -15,13 +15,18 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.wgAbrechnung.wg_abrechnung.CustomListAdapter;
 import com.wgAbrechnung.wg_abrechnung.HomeListAdapter;
 import com.wgAbrechnung.wg_abrechnung.R;
+
+import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
 
@@ -30,6 +35,12 @@ public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
 
     ListView listView;
+
+    ArrayList<String> ListZweck = new ArrayList<String>();
+    ArrayList<String> ListDatum = new ArrayList<String>();
+    ArrayList<String> ListName = new ArrayList<String>();
+    ArrayList<String> ListBetrag = new ArrayList<String>();
+
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -41,23 +52,53 @@ public class HomeFragment extends Fragment {
 
         listView = root.findViewById(R.id.HomeListView);
 
+        System.out.println(CURRENT_PROJEKT);
+        db.collection(CURRENT_PROJEKT)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
 
-        String[] arrZweck = {
-                //"Tanken"
-        };
-        String[] arrDatum = {
-                //"23.05.20"
-        };
-        String[] arrName = {
-                //"Julian"
-        };
-        String[] arrBetrag = {
-                //"55€"
-        };
+                            for (QueryDocumentSnapshot document : task.getResult()) {
 
-        Activity context = getActivity();
-        HomeListAdapter Listadapter = new HomeListAdapter(context, arrZweck, arrDatum , arrName, arrBetrag);
-        listView.setAdapter(Listadapter);
+                                //den Zweck holen
+                                if(document.getString("ZWECK") != null){
+
+                                    ListZweck.add(document.getString("ZWECK"));
+                                    ListDatum.add(document.getString("DATUM"));
+                                    ListName.add(document.getString("NAME"));
+                                    ListBetrag.add(document.getString("BETRAG"));
+
+                                }
+                            }
+                            //Zweck in Array wandeln
+                            String[] arrZweck = new String[ListZweck.size()];
+                            arrZweck = ListZweck.toArray(arrZweck);
+                            //Datum in Array wandeln
+                            String[] arrDatum = new String[ListDatum.size()];
+                            arrDatum = ListDatum.toArray(arrDatum);
+                            //Namen in Array wandeln
+                            String[] arrName = new String[ListName.size()];
+                            arrName = ListName.toArray(arrName);
+                            //Betrag in Array wandlen
+                            String[] arrBetrag = new String[ListBetrag.size()];
+                            arrBetrag = ListBetrag.toArray(arrBetrag);
+
+                            //ListView füllen
+                            Activity context = getActivity();
+                            HomeListAdapter Listadapter = new HomeListAdapter(context, arrZweck, arrDatum , arrName, arrBetrag);
+                            listView.setAdapter(Listadapter);
+
+                        }else{
+                            //Rückmeldung
+                            Context context = getActivity().getApplicationContext();
+                            CharSequence text = "Fehler beim laden der Eintäge.";
+                            Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+                    }
+                });
 
         return root;
     }

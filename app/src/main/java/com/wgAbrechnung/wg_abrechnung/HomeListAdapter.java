@@ -49,14 +49,10 @@ public class HomeListAdapter extends ArrayAdapter {
         TextView BetragTextField = (TextView) rowView.findViewById(R.id.Betrag);
 
         //this code sets the values of the objects to values from the arrays
-        if(ZweckArray.length == 0){
-            nameTextField.setText("Es wurden noch keine Einträge angelegt");
-        }else {
-            ZweckTextField.setText(ZweckArray[position]);
-            DatumTextField.setText(DatumArray[position]);
-            nameTextField.setText(NameArray[position]);
-            BetragTextField.setText(BetragArray[position]);
-        }
+        ZweckTextField.setText(ZweckArray[position]);
+        DatumTextField.setText(DatumArray[position]);
+        nameTextField.setText(NameArray[position]);
+        BetragTextField.setText(BetragArray[position]);
 
 
         return rowView;
