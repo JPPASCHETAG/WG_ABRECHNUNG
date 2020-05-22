@@ -43,10 +43,13 @@ public class CustomListAdapter extends ArrayAdapter {
         TextView IDTextField = (TextView) rowView.findViewById(R.id.IDTextViewID);
 
         //this code sets the values of the objects to values from the arrays
-        nameTextField.setText(nameArray[position]);
-        infoTextField.setText(infoArray[position]);
-        IDTextField.setText(infoArrayID[position]);
-
+        if(nameArray.length == 0){
+            nameTextField.setText("Es wurden noch keine Projekte angelegt");
+        }else {
+            nameTextField.setText(nameArray[position]);
+            infoTextField.setText(infoArray[position]);
+            IDTextField.setText(infoArrayID[position]);
+        }
 
 
         return rowView;
