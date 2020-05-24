@@ -2,7 +2,9 @@ package com.wgAbrechnung.wg_abrechnung.ui.notifications;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -149,7 +152,30 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ADD_PROJEKT:
-                System.out.println("Neues Projekt");
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Einen Eintrag anlegen:");
+                builder.setMessage("Hie kann ein Projekt einer anderen Person hinzugefügt werden.");
+
+                //Eingabe des Zwecks
+                final EditText ProjektNREditText = new EditText(getActivity().getApplicationContext());
+                ProjektNREditText.setHint("Die Nummer des Projekts");
+                ProjektNREditText.setMaxLines(1);
+
+                builder.setView(ProjektNREditText);
+
+                builder.setPositiveButton("Hinzufügen", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+                builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
             break;
         }
     }

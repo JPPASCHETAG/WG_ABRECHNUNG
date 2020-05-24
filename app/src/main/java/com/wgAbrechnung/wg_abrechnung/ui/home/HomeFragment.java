@@ -117,7 +117,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.NEW_ENTRY:
-                System.out.println("Button gevlivkt");
                 // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
@@ -211,8 +210,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 AlertDialog dialog = builder.create();
                 dialog.show();
 
-                //FireMissilesDialogFragment dialog = new FireMissilesDialogFragment();
-                //dialog.show(getFragmentManager(), "missiles");
                 break;
         }
     }
