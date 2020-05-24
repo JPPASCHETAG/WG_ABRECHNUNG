@@ -9,8 +9,13 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:title="Meine Projekte"
         android:id="@+id/toolbar"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        android:background="@color/colorPrimary"
+        app:titleTextColor="#FFFFFF"
+        app:menu="@menu/notification_toolbar_menu"
+        />
 
     <ProgressBar
         android:id="@+id/progressBar2"

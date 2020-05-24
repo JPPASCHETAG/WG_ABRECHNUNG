@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -29,11 +27,6 @@ public class MainActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(navController.getGraph()).build();
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        NavigationUI.setupWithNavController(
-                toolbar, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
 

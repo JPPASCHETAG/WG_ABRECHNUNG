@@ -9,8 +9,13 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:title="Home"
         android:id="@+id/toolbar"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        android:background="@color/colorPrimary"
+        app:titleTextColor="#FFFFFF"
+        app:menu="@menu/home_toolbar_menu"
+        />
 
     <ListView
         android:id="@+id/HomeListView"
