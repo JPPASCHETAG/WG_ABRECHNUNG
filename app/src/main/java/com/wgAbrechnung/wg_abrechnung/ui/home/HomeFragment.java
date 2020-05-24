@@ -29,11 +29,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.wgAbrechnung.wg_abrechnung.HomeListAdapter;
 import com.wgAbrechnung.wg_abrechnung.R;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -133,6 +129,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
                 final EditText ZweckEditText = new EditText(getActivity().getApplicationContext());
                 ZweckEditText.setHint("Verwendungszweck");
+                ZweckEditText.setMaxLines(1);
                 layout.addView(ZweckEditText);
 
                 final EditText DateEditText = new EditText(getActivity().getApplicationContext());
@@ -140,7 +137,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 layout.addView(DateEditText);
 
                 final EditText NameEditText = new EditText(getActivity().getApplicationContext());
-
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
                 String lastNameUsed = sharedPreferences.getString("LAST_USED_NAME", "noID");
                 if(lastNameUsed != "noID"){
@@ -152,6 +148,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
                 final EditText BetragEditText = new EditText(getActivity().getApplicationContext());
                 BetragEditText.setHint("Betrag");
+                BetragEditText.setMaxLines(1);
                 layout.addView(BetragEditText);
 
                 builder.setView(layout);
