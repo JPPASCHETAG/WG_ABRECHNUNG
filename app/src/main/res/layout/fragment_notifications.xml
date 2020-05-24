@@ -22,6 +22,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="60dp"
         android:divider="@null"
 
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,4 +31,17 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </ListView>
+
+    <Button
+        android:id="@+id/ADD_PROJEKT"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="60dp"
+        android:background="@drawable/library_add_black_18dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+    </Button>
 </androidx.constraintlayout.widget.ConstraintLayout>
