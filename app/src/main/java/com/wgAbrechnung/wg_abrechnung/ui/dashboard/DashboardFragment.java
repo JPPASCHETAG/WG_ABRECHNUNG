@@ -77,7 +77,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener{
 
 
     public void NEUES_PROJEKT(){
-        String strProjektName = strPROJEKT_NAME.getText().toString();
+        final String strProjektName = strPROJEKT_NAME.getText().toString();
         final String PROJEKT_ID = UUID.randomUUID().toString();
 
         // Einträge für die Datenbank
@@ -114,6 +114,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener{
                                                 // Eintrag der Datenbank Zuordnung ProjektNR und ID
                                                 Map<String, Object> dataNR = new HashMap<>();
                                                 dataNR.put("NR", latestNR);
+                                                dataNR.put("NAME", strProjektName);
 
                                                 db.collection("PROJEKT_NR").document(PROJEKT_ID)
                                                         .set(dataNR)

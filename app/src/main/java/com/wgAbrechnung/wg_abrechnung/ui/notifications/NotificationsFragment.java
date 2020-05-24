@@ -32,6 +32,8 @@ import com.wgAbrechnung.wg_abrechnung.MainActivity;
 import com.wgAbrechnung.wg_abrechnung.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NotificationsFragment extends Fragment implements View.OnClickListener{
 
@@ -166,11 +168,65 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
                 builder.setPositiveButton("Hinzufügen", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
+                        Long inputNR = Long.parseLong(ProjektNREditText.getText().toString());
+
+                        db.collection("PROJEKT_NR").whereEqualTo("NR",inputNR)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if(task.isSuccessful()) {
+                                   String ProjektID = "";
+                                    String ProjektName = "";
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+
+                                        ProjektID = document.getId();
+                                        ProjektName = document.getString("NAME");
+
+                                    }
+                                    //das Projekt wird mit Nr und Name gesetzt
+                                    Map<String, Object> dataExistingProjekt = new HashMap<>();
+                                    dataExistingProjekt.put("PROJEKT_ID", ProjektID);
+                                    dataExistingProjekt.put("NAME", ProjektName);
+
+                                    final String finalProjektID = ProjektID;
+                                    db.collection("USER").document(USER_ID).collection("PROJEKTE").document(ProjektID)
+                                            .set(dataExistingProjekt)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+
+                                                    //Shared Preference setzen auf das neue Projekt
+                                                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                                    editor.putString("CURRENT_PROJEKT", finalProjektID);
+                                                    editor.apply();
+
+                                                    //Rückmeldung
+                                                    Context context = getActivity().getApplicationContext();
+                                                    CharSequence text = "Das Projekt wurde erfolgreih hinzugefügt.";
+                                                    Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                                    toast.show();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    //Rückmeldung
+                                                    Context context = getActivity().getApplicationContext();
+                                                    CharSequence text = "Es ist ein Fehler aufgetreten.";
+                                                    Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                                    toast.show();
+                                                }
+                                            });
+                                }
+                            }
+                        });
                     }
                 });
                 builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
+                        // User cancelled the dialog
                     }
                 });
 
