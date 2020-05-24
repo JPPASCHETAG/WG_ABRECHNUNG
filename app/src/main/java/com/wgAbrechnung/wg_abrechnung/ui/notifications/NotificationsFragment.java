@@ -9,15 +9,16 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -35,7 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NotificationsFragment extends Fragment implements View.OnClickListener{
+public class NotificationsFragment extends Fragment implements Toolbar.OnMenuItemClickListener {
 
     private NotificationsViewModel notificationsViewModel;
 
@@ -45,7 +46,7 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
     ArrayList<String> ListNR = new ArrayList<String>();
 
     ListView listView;
-    Button btnAddProjekt;
+    private Toolbar toolbar;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -62,8 +63,8 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
         USER_ID = main.GET_ID();
 
         listView = root.findViewById(R.id.PROJEKT_LIST);
-        btnAddProjekt = root.findViewById(R.id.ADD_PROJEKT);
-        btnAddProjekt.setOnClickListener(this);
+        toolbar = root.findViewById(R.id.toolbar);
+        toolbar.setOnMenuItemClickListener(this);
 
         //Namen holen
         db.collection("USER").document(USER_ID).collection("PROJEKTE")
@@ -151,32 +152,43 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.ADD_PROJEKT:
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Einen Eintrag anlegen:");
-                builder.setMessage("Hie kann ein Projekt einer anderen Person hinzugefügt werden.");
+                AddProjekt();
+                break;
+            case R.id.NEW_PROJEKT:
+                //@TODO Dialog zur EIngabe eines neuen Projekts bauen
+                break;
+        }
 
-                //Eingabe des Zwecks
-                final EditText ProjektNREditText = new EditText(getActivity().getApplicationContext());
-                ProjektNREditText.setHint("Die Nummer des Projekts");
-                ProjektNREditText.setMaxLines(1);
+        return false;
+    }
 
-                builder.setView(ProjektNREditText);
+    public void AddProjekt(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Einen Eintrag anlegen:");
+        builder.setMessage("Hie kann ein Projekt einer anderen Person hinzugefügt werden.");
 
-                builder.setPositiveButton("Hinzufügen", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+        //Eingabe des Zwecks
+        final EditText ProjektNREditText = new EditText(getActivity().getApplicationContext());
+        ProjektNREditText.setHint("Die Nummer des Projekts");
+        ProjektNREditText.setMaxLines(1);
 
-                        Long inputNR = Long.parseLong(ProjektNREditText.getText().toString());
+        builder.setView(ProjektNREditText);
 
-                        db.collection("PROJEKT_NR").whereEqualTo("NR",inputNR)
+        builder.setPositiveButton("Hinzufügen", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                Long inputNR = Long.parseLong(ProjektNREditText.getText().toString());
+
+                db.collection("PROJEKT_NR").whereEqualTo("NR",inputNR)
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if(task.isSuccessful()) {
-                                   String ProjektID = "";
+                                    String ProjektID = "";
                                     String ProjektName = "";
                                     for (QueryDocumentSnapshot document : task.getResult()) {
 
@@ -222,25 +234,17 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
                                 }
                             }
                         });
-                    }
-                });
-                builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                    }
-                });
+            }
+        });
+        builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
 
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            break;
-        }
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
-
-
-
-
-
-
 
 
 
