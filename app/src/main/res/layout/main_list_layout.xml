@@ -8,9 +8,13 @@
         android:layout_width="16dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:layout_weight="1"
+        android:background="@drawable/rounded_corners"
         android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingLeft="5dp">
 
         <TextView
             android:id="@+id/Zweck"
@@ -42,8 +46,7 @@
             android:layout_height="wrap_content"
             android:text="Begtrag"
             android:textSize="24sp"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold" />
 
     </LinearLayout>
 </LinearLayout>
