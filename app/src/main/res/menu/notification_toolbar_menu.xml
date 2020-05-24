@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_home"
+        android:id="@+id/NEW_PROJEKT"
         android:icon="@drawable/ic_home_black_24dp"
         android:title="Neues Projekt anlegen" />
 
     <item
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/ADD_PROJEKT"
         android:icon="@drawable/format_align_left_black_18dp"
         android:title="Vorhandenes Porjekt hinzufügen" />
 
