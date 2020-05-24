@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -35,6 +36,7 @@ import com.wgAbrechnung.wg_abrechnung.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class NotificationsFragment extends Fragment implements Toolbar.OnMenuItemClickListener {
 
@@ -159,6 +161,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
                 break;
             case R.id.NEW_PROJEKT:
                 //@TODO Dialog zur EIngabe eines neuen Projekts bauen
+                NewProjekt();
                 break;
         }
 
@@ -167,7 +170,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
 
     public void AddProjekt(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Einen Eintrag anlegen:");
+        builder.setTitle("Ein Projekt hinzufügen:");
         builder.setMessage("Hie kann ein Projekt einer anderen Person hinzugefügt werden.");
 
         //Eingabe des Zwecks
@@ -246,6 +249,144 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
         dialog.show();
     }
 
+    public void NewProjekt(){
 
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Ein neues Projekt erstellen");
+
+        //Eingabe des Zwecks
+        final EditText ProjektNameEditText = new EditText(getActivity().getApplicationContext());
+        ProjektNameEditText.setHint("Der Name des Projekts");
+        ProjektNameEditText.setMaxLines(1);
+
+        builder.setView(ProjektNameEditText);
+
+        builder.setPositiveButton("Hinzufügen", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                final String strProjektName = ProjektNameEditText.getText().toString();
+                final String PROJEKT_ID = UUID.randomUUID().toString();
+
+                // Einträge für die Datenbank
+                Map<String, Object> data = new HashMap<>();
+                data.put("PROJEKT_ID", PROJEKT_ID);
+                data.put("NAME", strProjektName);
+
+
+                // Einen neuen Eintrag in der UserProjekte Collection
+                db.collection("USER").document(USER_ID).collection("PROJEKTE").document(PROJEKT_ID)
+                        .set(data)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                                //Einlagungsnummer generieren
+                                //Die aktuell höchste NR holen
+                                db.collection("PROJEKT_LATEST_NR")
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+
+                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                        Map<String, Object> data = document.getData();
+                                                        Long latestNR = (Long) data.get("NR");
+                                                        latestNR++;
+
+                                                        // Eintrag der Datenbank Zuordnung ProjektNR und ID
+                                                        Map<String, Object> dataNR = new HashMap<>();
+                                                        dataNR.put("NR", latestNR);
+                                                        dataNR.put("NAME", strProjektName);
+
+                                                        final Long finalLatestNR = latestNR;
+                                                        db.collection("PROJEKT_NR").document(PROJEKT_ID)
+                                                                .set(dataNR)
+                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+
+                                                                        //Latest NR um 1 erhöhen.
+                                                                        Map<String, Object> dataLatestNR = new HashMap<>();
+                                                                        dataLatestNR.put("NR", finalLatestNR);
+
+                                                                        db.collection("PROJEKT_LATEST_NR").document("LATEST_NR")
+                                                                                .set(dataLatestNR)
+                                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                    @Override
+                                                                                    public void onSuccess(Void aVoid) {
+
+                                                                                        //aktuelles Projekt aktualisieren
+                                                                                        //Shared Preference setzen auf das neue Projekt
+                                                                                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                                                                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                                                                        editor.putString("CURRENT_PROJEKT", PROJEKT_ID);
+                                                                                        editor.apply();
+
+
+                                                                                        //Rückmeldung
+                                                                                        Context context = getActivity().getApplicationContext();
+                                                                                        CharSequence text = "Neues Projekt angelegt.";
+                                                                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                                                                        toast.show();
+                                                                                    }
+                                                                                })
+                                                                                .addOnFailureListener(new OnFailureListener() {
+                                                                                    @Override
+                                                                                    public void onFailure(@NonNull Exception e) {
+                                                                                        //Rückmeldung
+                                                                                        Context context = getActivity().getApplicationContext();
+                                                                                        CharSequence text = "Fehler beim erhöhen der fortlaufenden Nr.";
+                                                                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                                                                        toast.show();
+                                                                                    }
+                                                                                });
+                                                                    }
+                                                                })
+                                                                .addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        //Rückmeldung
+                                                                        Context context = getActivity().getApplicationContext();
+                                                                        CharSequence text = "Fehler zuordnen der ProjektNR.";
+                                                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                                                        toast.show();
+                                                                    }
+                                                                });
+                                                    }
+                                                } else {
+                                                    //Rückmeldung
+                                                    Context context = getActivity().getApplicationContext();
+                                                    CharSequence text = "Fehler beim Holen der aktuellen NR.";
+                                                    Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                                    toast.show();
+                                                }
+                                            }
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                //Rückmeldung
+                                Context context = getActivity().getApplicationContext();
+                                CharSequence text = "Fehler beim Anlegen des Projekts.";
+                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                toast.show();
+                            }
+                        });
+
+            }
+        });
+        builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+
+// 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
 }
