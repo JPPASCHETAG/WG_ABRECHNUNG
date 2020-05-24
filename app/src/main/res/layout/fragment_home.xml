@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="Home"
+        android:id="@+id/toolbar"
+        tools:ignore="MissingConstraints"
+        android:background="@color/colorPrimary"
+        app:titleTextColor="#FFFFFF"
+        app:menu="@menu/home_toolbar_menu"
+        />
+
     <ListView
         android:id="@+id/HomeListView"
         android:layout_width="match_parent"
@@ -13,24 +24,11 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="60dp"
+        android:layout_marginTop="60dp"
         android:divider="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-
-    <Button
-        android:id="@+id/NEW_ENTRY"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="60dp"
-        android:background="@drawable/add_circle_black_18dp"
-        android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-    </Button>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

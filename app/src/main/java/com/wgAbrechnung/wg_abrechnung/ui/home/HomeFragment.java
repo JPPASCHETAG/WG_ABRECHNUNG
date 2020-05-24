@@ -8,15 +8,16 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -35,15 +36,13 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HomeFragment extends Fragment implements View.OnClickListener{
+public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickListener {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String CURRENT_PROJEKT = "";
 
     private ListView listView;
-    private Button btnNewEntry;
-
-
+    private Toolbar toolbar;
 
     private ArrayList<String> ListZweck = new ArrayList<String>();
     private ArrayList<String> ListDatum = new ArrayList<String>();
@@ -59,8 +58,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         CURRENT_PROJEKT = sharedPreferences.getString("CURRENT_PROJEKT", "");
 
         listView = root.findViewById(R.id.HomeListView);
-        btnNewEntry = root.findViewById(R.id.NEW_ENTRY);
-        btnNewEntry.setOnClickListener(this);
+        toolbar = root.findViewById(R.id.toolbar);
+        toolbar.setOnMenuItemClickListener(this);
 
         db.collection(CURRENT_PROJEKT)
                 .get()
@@ -112,108 +111,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         return root;
     }
 
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.NEW_ENTRY:
-                // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-// 2. Chain together various setter methods to set the dialog characteristics
-                builder.setTitle("Einen Eintrag anlegen:");
-                        //.setMessage("Eine Nachricht");
-
-                LinearLayout layout = new LinearLayout(getActivity().getApplicationContext());
-                layout.setOrientation(LinearLayout.VERTICAL);
-
-                //Eingabe des Zwecks
-                final EditText ZweckEditText = new EditText(getActivity().getApplicationContext());
-                ZweckEditText.setHint("Verwendungszweck");
-                ZweckEditText.setMaxLines(1);
-                layout.addView(ZweckEditText);
-
-                //Eingabe des Datums
-                final EditText DateEditText = new EditText(getActivity().getApplicationContext());
-                //Das aktuelle Datum holen
-                Calendar kalender = Calendar.getInstance();
-                SimpleDateFormat datumsformat = new SimpleDateFormat("dd.MM.yyyy");
-                DateEditText.setText(datumsformat.format(kalender.getTime()));
-                layout.addView(DateEditText);
-
-                //Eingabe des Namen
-                final EditText NameEditText = new EditText(getActivity().getApplicationContext());
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-                String lastNameUsed = sharedPreferences.getString("LAST_USED_NAME", "noID");
-                if(lastNameUsed != "noID"){
-                    NameEditText.setText(lastNameUsed);
-                }else{
-                    NameEditText.setHint("Name");
-                }
-                layout.addView(NameEditText);
-
-                //Eingabe des Betrags
-                final EditText BetragEditText = new EditText(getActivity().getApplicationContext());
-                BetragEditText.setHint("Betrag");
-                BetragEditText.setMaxLines(1);
-                layout.addView(BetragEditText);
-
-                builder.setView(layout);
-
-                builder.setPositiveButton("Hinzufügen", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        Map<String, Object> data = new HashMap<>();
-                        data.put("ZWECK", ZweckEditText.getText().toString());
-                        data.put("DATUM", DateEditText.getText().toString());
-                        data.put("NAME", NameEditText.getText().toString());
-                        //Betrag formatieren
-                        String Betrag = FormatBetrag(BetragEditText.getText().toString());
-                        data.put("BETRAG", Betrag);
-
-                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("LAST_USED_NAME", NameEditText.getText().toString());
-                        editor.apply();
-
-
-                        db.collection(CURRENT_PROJEKT).document()
-                                .set(data)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-
-                                        Context context = getActivity().getApplicationContext();
-                                        CharSequence text = "Eintrag erfolgreich angelegt.";
-                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                        toast.show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Context context = getActivity().getApplicationContext();
-                                        CharSequence text = "Fehler beim Anlegen des Eintrags.";
-                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                        toast.show();
-                                    }
-                                });
-                    }
-                });
-                builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                    }
-                });
-
-// 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
-                AlertDialog dialog = builder.create();
-                dialog.show();
-
-                break;
-        }
-    }
-
     /*
     Der Betrag wird formatiert.
      */
@@ -228,4 +125,111 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         return strBetrag;
     }
 
+    public void NewEntry(){
+        // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setTitle("Einen Eintrag anlegen:");
+        //.setMessage("Eine Nachricht");
+
+        LinearLayout layout = new LinearLayout(getActivity().getApplicationContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        //Eingabe des Zwecks
+        final EditText ZweckEditText = new EditText(getActivity().getApplicationContext());
+        ZweckEditText.setHint("Verwendungszweck");
+        ZweckEditText.setMaxLines(1);
+        layout.addView(ZweckEditText);
+
+        //Eingabe des Datums
+        final EditText DateEditText = new EditText(getActivity().getApplicationContext());
+        //Das aktuelle Datum holen
+        Calendar kalender = Calendar.getInstance();
+        SimpleDateFormat datumsformat = new SimpleDateFormat("dd.MM.yyyy");
+        DateEditText.setText(datumsformat.format(kalender.getTime()));
+        layout.addView(DateEditText);
+
+        //Eingabe des Namen
+        final EditText NameEditText = new EditText(getActivity().getApplicationContext());
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        String lastNameUsed = sharedPreferences.getString("LAST_USED_NAME", "noID");
+        if(lastNameUsed != "noID"){
+            NameEditText.setText(lastNameUsed);
+        }else{
+            NameEditText.setHint("Name");
+        }
+        layout.addView(NameEditText);
+
+        //Eingabe des Betrags
+        final EditText BetragEditText = new EditText(getActivity().getApplicationContext());
+        BetragEditText.setHint("Betrag");
+        BetragEditText.setMaxLines(1);
+        layout.addView(BetragEditText);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("Hinzufügen", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("ZWECK", ZweckEditText.getText().toString());
+                data.put("DATUM", DateEditText.getText().toString());
+                data.put("NAME", NameEditText.getText().toString());
+                //Betrag formatieren
+                String Betrag = FormatBetrag(BetragEditText.getText().toString());
+                data.put("BETRAG", Betrag);
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("LAST_USED_NAME", NameEditText.getText().toString());
+                editor.apply();
+
+
+                db.collection(CURRENT_PROJEKT).document()
+                        .set(data)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                Context context = getActivity().getApplicationContext();
+                                CharSequence text = "Eintrag erfolgreich angelegt.";
+                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                toast.show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Context context = getActivity().getApplicationContext();
+                                CharSequence text = "Fehler beim Anlegen des Eintrags.";
+                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                                toast.show();
+                            }
+                        });
+            }
+        });
+        builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+
+// 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.NEW_ENTRY:
+                NewEntry();
+                break;
+            case R.id.MONTH_SUMMARY:
+                //@TODO neue Activität mit graphen etc
+                break;
+        }
+        return false;
+    }
 }

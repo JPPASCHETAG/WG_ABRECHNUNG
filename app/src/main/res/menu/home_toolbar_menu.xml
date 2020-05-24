@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/NEW_ENTRY"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="Neuer Eintrag" />
+
+    <item
+        android:id="@+id/MONTH_SUMMARY"
+        android:icon="@drawable/format_align_left_black_18dp"
+        android:title="Monatsübersicht" />
+
+</menu>
