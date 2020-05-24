@@ -160,7 +160,6 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
                 AddProjekt();
                 break;
             case R.id.NEW_PROJEKT:
-                //@TODO Dialog zur EIngabe eines neuen Projekts bauen
                 NewProjekt();
                 break;
         }
