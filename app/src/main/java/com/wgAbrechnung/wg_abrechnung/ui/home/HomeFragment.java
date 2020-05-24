@@ -29,11 +29,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.wgAbrechnung.wg_abrechnung.HomeListAdapter;
 import com.wgAbrechnung.wg_abrechnung.R;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -131,16 +129,21 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 LinearLayout layout = new LinearLayout(getActivity().getApplicationContext());
                 layout.setOrientation(LinearLayout.VERTICAL);
 
+                //Eingabe des Zwecks
                 final EditText ZweckEditText = new EditText(getActivity().getApplicationContext());
                 ZweckEditText.setHint("Verwendungszweck");
                 layout.addView(ZweckEditText);
 
+                //Eingabe des Datums
                 final EditText DateEditText = new EditText(getActivity().getApplicationContext());
-                DateEditText.setHint("Datum");
+                //Das aktuelle Datum holen
+                Calendar kalender = Calendar.getInstance();
+                SimpleDateFormat datumsformat = new SimpleDateFormat("dd.MM.yyyy");
+                DateEditText.setText(datumsformat.format(kalender.getTime()));
                 layout.addView(DateEditText);
 
+                //Eingabe des Namen
                 final EditText NameEditText = new EditText(getActivity().getApplicationContext());
-
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
                 String lastNameUsed = sharedPreferences.getString("LAST_USED_NAME", "noID");
                 if(lastNameUsed != "noID"){
@@ -150,6 +153,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 }
                 layout.addView(NameEditText);
 
+                //Eingabe des Betrags
                 final EditText BetragEditText = new EditText(getActivity().getApplicationContext());
                 BetragEditText.setHint("Betrag");
                 layout.addView(BetragEditText);
@@ -163,7 +167,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                         data.put("ZWECK", ZweckEditText.getText().toString());
                         data.put("DATUM", DateEditText.getText().toString());
                         data.put("NAME", NameEditText.getText().toString());
-                        data.put("BETRAG", BetragEditText.getText().toString());
+                        //Betrag formatieren
+                        String Betrag = FormatBetrag(BetragEditText.getText().toString());
+                        data.put("BETRAG", Betrag);
 
                         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
                         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -209,4 +215,19 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 break;
         }
     }
+
+    /*
+    Der Betrag wird formatiert.
+     */
+    public String FormatBetrag(String strBetrag){
+
+        if(strBetrag.contains(".")){
+            strBetrag.replace(".",",");
+        }
+        if(!strBetrag.contains("€")){
+            strBetrag += "€";
+        }
+        return strBetrag;
+    }
+
 }
