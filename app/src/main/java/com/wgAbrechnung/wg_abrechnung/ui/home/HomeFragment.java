@@ -62,7 +62,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         btnNewEntry = root.findViewById(R.id.NEW_ENTRY);
         btnNewEntry.setOnClickListener(this);
 
-        System.out.println(CURRENT_PROJEKT);
         db.collection(CURRENT_PROJEKT)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

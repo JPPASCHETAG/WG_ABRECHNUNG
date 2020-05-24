@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -39,7 +40,7 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
     ArrayList<String> ListNR = new ArrayList<String>();
 
     ListView listView;
-
+    Button btnAddProjekt;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -56,6 +57,8 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
         USER_ID = main.GET_ID();
 
         listView = root.findViewById(R.id.PROJEKT_LIST);
+        btnAddProjekt = root.findViewById(R.id.ADD_PROJEKT);
+        btnAddProjekt.setOnClickListener(this);
 
         //Namen holen
         db.collection("USER").document(USER_ID).collection("PROJEKTE")
@@ -144,8 +147,11 @@ public class NotificationsFragment extends Fragment implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-
-
+        switch (v.getId()) {
+            case R.id.ADD_PROJEKT:
+                System.out.println("Neues Projekt");
+            break;
+        }
     }
 
 
