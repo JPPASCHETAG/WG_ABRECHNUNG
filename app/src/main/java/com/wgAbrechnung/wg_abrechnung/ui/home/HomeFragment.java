@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -43,9 +42,8 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
     private String CURRENT_PROJEKT = "";
 
     private ListView listView;
-    private Button btnNewEntry;
     private Toolbar toolbar;
-    
+
     private ArrayList<String> ListZweck = new ArrayList<String>();
     private ArrayList<String> ListDatum = new ArrayList<String>();
     private ArrayList<String> ListName = new ArrayList<String>();
