@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/NEW_PROJEKT"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="Neues Projekt anlegen" />
+        android:icon="@drawable/library_add_black_18dp"
+        android:title="Neues Projekt anlegen"
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/ADD_PROJEKT"
