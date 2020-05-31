@@ -14,20 +14,16 @@ import com.wgAbrechnung.wg_abrechnung.HTTP_REQUEST;
 import com.wgAbrechnung.wg_abrechnung.MainActivity;
 import com.wgAbrechnung.wg_abrechnung.R;
 
-import java.net.URLConnection;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 
-public class DashboardFragment extends Fragment implements View.OnClickListener{
+public class DashboardFragment extends Fragment implements View.OnClickListener, HTTP_REQUEST.AsyncResponse {
 
     private DashboardViewModel dashboardViewModel;
 
     private String USER_ID = "";
     Button btn;
-    private URLConnection conn;
-
-    public static final String POST_PARAM_KEYVALUE_SEPARATOR = "=";
-    public static final String POST_PARAM_SEPARATOR = "&";
-    private static final String DESTINATION_METHOD = "allEntrys";
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -52,20 +48,20 @@ public class DashboardFragment extends Fragment implements View.OnClickListener{
         switch (v.getId()){
             case 2131230740:
 
-                DB_CONNECTION();
+                String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php";
+                new HTTP_REQUEST(this).execute(urlWebService);
 
                 break;
         }
     }
 
-
-    public String DB_CONNECTION() {
-
-        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php";
-
-        System.out.println(new HTTP_REQUEST().execute(urlWebService));
-        //new HTTP_REQUEST().Output(lsdna);
-        return null;
+    @Override
+    public void processFinish(String output) {
+        try {
+            JSONArray jsonArray = new JSONArray(output);
+            System.out.println(jsonArray.getJSONObject(1));
+        } catch (JSONException e){
+            System.out.println(e);
+        }
     }
-
 }
