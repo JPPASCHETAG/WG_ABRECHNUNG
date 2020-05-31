@@ -88,9 +88,10 @@
                         style="?attr/borderlessButtonStyle"
                         />
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/Test"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Button2"
+                        android:text="ConnectionTest"
                         style="?attr/borderlessButtonStyle"
                         />
                 </LinearLayout>
