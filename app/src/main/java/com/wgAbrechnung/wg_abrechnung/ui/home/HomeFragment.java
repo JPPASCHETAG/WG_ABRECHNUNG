@@ -61,7 +61,7 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
         toolbar.setOnMenuItemClickListener(this);
 
 
-        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=5&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
+        String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=5&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
         MODE = 5;
         new HTTP_REQUEST(this).execute(urlWebService);
 
@@ -147,7 +147,7 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
 
     private void ADD_ENTRY(String strZweck, String strDatum, String strName, String strBetrag) {
 
-        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=4&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
+        String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=4&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
                 urlWebService += "&ZWECK=" + strZweck;
                 urlWebService += "&DATUM=" + strDatum;
                 urlWebService += "&NAME=" + strName;
