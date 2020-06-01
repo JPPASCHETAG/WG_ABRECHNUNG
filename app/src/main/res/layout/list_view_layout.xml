@@ -5,9 +5,9 @@
     android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="@dimen/activity_horizontal_margin"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="5dp"
@@ -15,32 +15,56 @@
         android:layout_weight="1"
         android:background="@drawable/rounded_corners"
         android:gravity="center_vertical"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:elevation="3dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp">
 
-        <TextView
-            android:id="@+id/nameTextViewID"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Es sind keine Projekte vorhanden"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="60dp"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/infoTextViewID"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
+            <TextView
+                android:id="@+id/nameTextViewID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Keine Projekte"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/IDTextViewID"
+            <TextView
+                android:id="@+id/infoTextViewID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/IDTextViewID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textSize="8sp"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginLeft="-60dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textSize="8sp"
-            android:visibility="invisible" />
+            android:layout_height="match_parent"
+            >
+
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/done_black_18dp" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 
