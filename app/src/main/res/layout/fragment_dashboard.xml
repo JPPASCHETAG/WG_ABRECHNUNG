@@ -18,11 +18,33 @@
         />
 
     <com.anychart.AnyChartView
+        android:id="@+id/CHART"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/CHART"
         android:layout_marginTop="66dp"
-        android:layout_marginBottom="230dp"
-        />
+        android:layout_marginBottom="160dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="88dp"
+        android:layout_marginBottom="112dp"
+        android:text="Gesamtausgaben:"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="112dp"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -35,6 +36,7 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
     private String USER_ID = "";
     private String CURRENT_PROJEKT = "";
     private Integer MODE = 0;
+    private TextView textView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -49,6 +51,7 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
         CURRENT_PROJEKT = sharedPreferences.getString("CURRENT_PROJEKT", "");
 
         anyChartView = root.findViewById(R.id.CHART);
+        textView = root.findViewById(R.id.textView2);
 
         String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=6&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
         MODE = 6;
@@ -63,6 +66,7 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
         try {
             JSONArray jsonArray = new JSONArray(output);
             List<DataEntry> data = new ArrayList<>();
+            Double sumBetrag = 0.0;
             for (int i = 0; i < jsonArray.length(); i++) {
                 boolean isSet = false;
                 //Betrag formatieren
@@ -71,7 +75,7 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
                 strBetrag = strBetrag.replace("€","");
                 strBetrag = strBetrag.replace(",",".");
                 jsonObject.put("BETRAG",strBetrag);
-
+                sumBetrag = sumBetrag + Double.parseDouble(strBetrag);
                 if(data.size() == 0){
                     data.add(new ValueDataEntry(jsonObject.getString("NAME"), jsonObject.getDouble("BETRAG")));
                 }else {
@@ -99,7 +103,9 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
         Pie pie = AnyChart.pie();
             anyChartView.setChart(pie);
             pie.data(data);
-
+            String Betrag = String.valueOf(sumBetrag);
+            Betrag = Betrag.substring(0,Betrag.indexOf(".") + 3);
+        textView.setText(Betrag+"€");
         }catch (JSONException e) {
             System.out.println(e);
         }
