@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,8 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
     ListView listView;
     private Toolbar toolbar;
     ImageView imageView;
+    ProgressBar progressbar;
+
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -60,7 +63,8 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
                 ViewModelProviders.of(this).get(NotificationsViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_notifications, container, false);
 
-        root.findViewById(R.id.progressBar2).setVisibility(View.VISIBLE);
+        progressbar = root.findViewById(R.id.progressBar2);
+        progressbar.setVisibility(View.VISIBLE);
 
         MainActivity main  = (MainActivity) getActivity();
         USER_ID = main.GET_ID();
@@ -210,6 +214,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
             break;
             case 2:
                 MODE = 0;
+                progressbar.setVisibility(View.INVISIBLE);
                 try {
                     JSONArray jsonArray = new JSONArray(output);
                     for (int i=0; i < jsonArray.length(); i++) {

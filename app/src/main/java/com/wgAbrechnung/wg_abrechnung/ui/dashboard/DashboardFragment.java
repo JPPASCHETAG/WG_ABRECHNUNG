@@ -107,8 +107,11 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
             if(sumBetrag > 0){
                 Betrag = String.valueOf(sumBetrag);
                 Betrag = Betrag.substring(0,Betrag.indexOf(".") + 3);
+                Betrag += "€";
+            }else{
+                Betrag = "Keine Daten";
             }
-            textView.setText(Betrag+"€");
+            textView.setText(Betrag);
         }catch (JSONException e) {
             System.out.println(e);
         }
