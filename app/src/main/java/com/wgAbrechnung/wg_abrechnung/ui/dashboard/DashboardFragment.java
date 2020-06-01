@@ -103,9 +103,12 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
         Pie pie = AnyChart.pie();
             anyChartView.setChart(pie);
             pie.data(data);
-            String Betrag = String.valueOf(sumBetrag);
-            Betrag = Betrag.substring(0,Betrag.indexOf(".") + 3);
-        textView.setText(Betrag+"€");
+            String Betrag = "0.00";
+            if(sumBetrag > 0){
+                Betrag = String.valueOf(sumBetrag);
+                Betrag = Betrag.substring(0,Betrag.indexOf(".") + 3);
+            }
+            textView.setText(Betrag+"€");
         }catch (JSONException e) {
             System.out.println(e);
         }
