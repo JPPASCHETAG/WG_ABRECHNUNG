@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -46,6 +47,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
 
     ListView listView;
     private Toolbar toolbar;
+    ImageView imageView;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -66,17 +68,14 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
         listView = root.findViewById(R.id.PROJEKT_LIST);
         toolbar = root.findViewById(R.id.toolbar);
         toolbar.setOnMenuItemClickListener(this);
+        imageView = root.findViewById(R.id.imgCheck);
 
-
-        String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=2&USER_TOKEN=" + USER_ID;
-        MODE = 2;
-        new HTTP_REQUEST(this).execute(urlWebService);
+        LOAD_PROJEKTE();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 //Shared Preference ändern auf Projekt Id
-                System.out.println(ListID.get(position));
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("CURRENT_PROJEKT", ListID.get(position));
@@ -87,6 +86,12 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
         });
 
         return root;
+    }
+
+    public void LOAD_PROJEKTE(){
+        String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=2&USER_TOKEN=" + USER_ID;
+        MODE = 2;
+        new HTTP_REQUEST(this).execute(urlWebService);
     }
 
     @Override
