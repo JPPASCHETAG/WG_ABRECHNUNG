@@ -22,23 +22,20 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.wgAbrechnung.wg_abrechnung.CustomListAdapter;
+import com.wgAbrechnung.wg_abrechnung.HTTP_REQUEST;
 import com.wgAbrechnung.wg_abrechnung.MainActivity;
 import com.wgAbrechnung.wg_abrechnung.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-public class NotificationsFragment extends Fragment implements Toolbar.OnMenuItemClickListener {
+public class NotificationsFragment extends Fragment implements Toolbar.OnMenuItemClickListener,HTTP_REQUEST.AsyncResponse {
 
     private NotificationsViewModel notificationsViewModel;
 
@@ -51,6 +48,8 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
     private Toolbar toolbar;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private Integer MODE = 0;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -68,73 +67,10 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
         toolbar = root.findViewById(R.id.toolbar);
         toolbar.setOnMenuItemClickListener(this);
 
-        //Namen holen
-        db.collection("USER").document(USER_ID).collection("PROJEKTE")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                //Namen der Liste hinzufügen
-                                if(document.getString("NAME") != null){
-                                    ListName.add(document.getString("NAME"));
-                                    ListID.add(document.getId());
-                                }
-                            }
-                            //Für jedes Projekt die Nummer holen
-                            //@TODO Hier eine praktikablere Lösung als alle zu holen
-                                db.collection("PROJEKT_NR")
-                                        .get()
-                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                                                for ( QueryDocumentSnapshot document : task.getResult()) {
-                                                    if(ListID.contains(document.getId())){
-                                                        ListNR.add(document.getLong("NR").toString());
-                                                    }
-                                                }
-
-                                                //liste in ein Array verwandeln
-                                                //Namen in Array wandeln
-                                                String[] arrNamen = new String[ListName.size()];
-                                                arrNamen = ListName.toArray(arrNamen);
-                                                //IDs in array wandweln
-                                                String[] IDArray = new String[ListID.size()];
-                                                IDArray = ListID.toArray(IDArray);
-                                                //NR in array wandeln
-                                                String[] arrNR = new String[ListNR.size()];
-                                                arrNR = ListNR.toArray(arrNR);
-
-                                                root.findViewById(R.id.progressBar2).setVisibility(View.INVISIBLE);
-
-                                                //Liste aufbauen
-                                                Activity context = getActivity();
-                                                CustomListAdapter Listadapter = new CustomListAdapter(context, arrNamen, arrNR , IDArray);
-                                                listView.setAdapter(Listadapter);
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Context context = getActivity().getApplicationContext();
-                                                CharSequence text = "Fehler beim laden der Einladungsnummern.";
-                                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                                toast.show();
-                                            }
-                                        });
-
-                        } else {
-                            root.findViewById(R.id.progressBar2).setVisibility(View.INVISIBLE);
-                            //Rückmeldung
-                            Context context = getActivity().getApplicationContext();
-                            CharSequence text = "Fehler beim laden der Projekte.";
-                            Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                            toast.show();
-                        }
-                    }
-                });
+        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=2&USER_TOKEN=" + USER_ID;
+        MODE = 2;
+        new HTTP_REQUEST(this).execute(urlWebService);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -157,17 +93,17 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.ADD_PROJEKT:
-                AddProjekt();
+                AddProjektDialog();
                 break;
             case R.id.NEW_PROJEKT:
-                NewProjekt();
+                NewProjektDialog();
                 break;
         }
 
         return false;
     }
 
-    public void AddProjekt(){
+    public void AddProjektDialog(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Ein Projekt hinzufügen:");
         builder.setMessage("Hie kann ein Projekt einer anderen Person hinzugefügt werden.");
@@ -183,59 +119,8 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
             public void onClick(DialogInterface dialog, int id) {
 
                 Long inputNR = Long.parseLong(ProjektNREditText.getText().toString());
+                ADD_PROJEKT(inputNR);
 
-                db.collection("PROJEKT_NR").whereEqualTo("NR",inputNR)
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if(task.isSuccessful()) {
-                                    String ProjektID = "";
-                                    String ProjektName = "";
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-
-                                        ProjektID = document.getId();
-                                        ProjektName = document.getString("NAME");
-
-                                    }
-                                    //das Projekt wird mit Nr und Name gesetzt
-                                    Map<String, Object> dataExistingProjekt = new HashMap<>();
-                                    dataExistingProjekt.put("PROJEKT_ID", ProjektID);
-                                    dataExistingProjekt.put("NAME", ProjektName);
-
-                                    final String finalProjektID = ProjektID;
-                                    db.collection("USER").document(USER_ID).collection("PROJEKTE").document(ProjektID)
-                                            .set(dataExistingProjekt)
-                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-
-                                                    //Shared Preference setzen auf das neue Projekt
-                                                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-                                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                    editor.putString("CURRENT_PROJEKT", finalProjektID);
-                                                    editor.apply();
-
-                                                    //Rückmeldung
-                                                    Context context = getActivity().getApplicationContext();
-                                                    CharSequence text = "Das Projekt wurde erfolgreih hinzugefügt.";
-                                                    Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                                    toast.show();
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    //Rückmeldung
-                                                    Context context = getActivity().getApplicationContext();
-                                                    CharSequence text = "Es ist ein Fehler aufgetreten.";
-                                                    Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                                    toast.show();
-                                                }
-                                            });
-                                }
-                            }
-                        });
             }
         });
         builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
@@ -248,7 +133,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
         dialog.show();
     }
 
-    public void NewProjekt(){
+    public void NewProjektDialog(){
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Ein neues Projekt erstellen");
@@ -266,114 +151,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
                 final String strProjektName = ProjektNameEditText.getText().toString();
                 final String PROJEKT_ID = UUID.randomUUID().toString();
 
-                // Einträge für die Datenbank
-                Map<String, Object> data = new HashMap<>();
-                data.put("PROJEKT_ID", PROJEKT_ID);
-                data.put("NAME", strProjektName);
-
-
-                // Einen neuen Eintrag in der UserProjekte Collection
-                db.collection("USER").document(USER_ID).collection("PROJEKTE").document(PROJEKT_ID)
-                        .set(data)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-
-                                //Einlagungsnummer generieren
-                                //Die aktuell höchste NR holen
-                                db.collection("PROJEKT_LATEST_NR")
-                                        .get()
-                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                if (task.isSuccessful()) {
-
-                                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                                        Map<String, Object> data = document.getData();
-                                                        Long latestNR = (Long) data.get("NR");
-                                                        latestNR++;
-
-                                                        // Eintrag der Datenbank Zuordnung ProjektNR und ID
-                                                        Map<String, Object> dataNR = new HashMap<>();
-                                                        dataNR.put("NR", latestNR);
-                                                        dataNR.put("NAME", strProjektName);
-
-                                                        final Long finalLatestNR = latestNR;
-                                                        db.collection("PROJEKT_NR").document(PROJEKT_ID)
-                                                                .set(dataNR)
-                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                    @Override
-                                                                    public void onSuccess(Void aVoid) {
-
-                                                                        //Latest NR um 1 erhöhen.
-                                                                        Map<String, Object> dataLatestNR = new HashMap<>();
-                                                                        dataLatestNR.put("NR", finalLatestNR);
-
-                                                                        db.collection("PROJEKT_LATEST_NR").document("LATEST_NR")
-                                                                                .set(dataLatestNR)
-                                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                    @Override
-                                                                                    public void onSuccess(Void aVoid) {
-
-                                                                                        //aktuelles Projekt aktualisieren
-                                                                                        //Shared Preference setzen auf das neue Projekt
-                                                                                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-                                                                                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                                                        editor.putString("CURRENT_PROJEKT", PROJEKT_ID);
-                                                                                        editor.apply();
-
-
-                                                                                        //Rückmeldung
-                                                                                        Context context = getActivity().getApplicationContext();
-                                                                                        CharSequence text = "Neues Projekt angelegt.";
-                                                                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                                                                        toast.show();
-                                                                                    }
-                                                                                })
-                                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                                    @Override
-                                                                                    public void onFailure(@NonNull Exception e) {
-                                                                                        //Rückmeldung
-                                                                                        Context context = getActivity().getApplicationContext();
-                                                                                        CharSequence text = "Fehler beim erhöhen der fortlaufenden Nr.";
-                                                                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                                                                        toast.show();
-                                                                                    }
-                                                                                });
-                                                                    }
-                                                                })
-                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                        //Rückmeldung
-                                                                        Context context = getActivity().getApplicationContext();
-                                                                        CharSequence text = "Fehler zuordnen der ProjektNR.";
-                                                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                                                        toast.show();
-                                                                    }
-                                                                });
-                                                    }
-                                                } else {
-                                                    //Rückmeldung
-                                                    Context context = getActivity().getApplicationContext();
-                                                    CharSequence text = "Fehler beim Holen der aktuellen NR.";
-                                                    Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                                    toast.show();
-                                                }
-                                            }
-                                        });
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                //Rückmeldung
-                                Context context = getActivity().getApplicationContext();
-                                CharSequence text = "Fehler beim Anlegen des Projekts.";
-                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                toast.show();
-                            }
-                        });
+                NEW_PROJEKT(strProjektName, PROJEKT_ID);
 
             }
         });
@@ -383,9 +161,94 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
             }
         });
 
-// 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
+        // 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
+    public void NEW_PROJEKT(String strName, String ProjektID){
+
+        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=1&NAME="+ strName +"&USER_TOKEN=" + USER_ID + "&PROJEKT_TOKEN="+ ProjektID;
+        MODE = 1;
+        new HTTP_REQUEST(this).execute(urlWebService);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("CURRENT_PROJEKT", ProjektID);
+        editor.apply();
+    }
+
+
+    public void ADD_PROJEKT(Long inputNR){
+        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=3&USER_TOKEN=" + USER_ID + "&ID="+ inputNR;
+        MODE = 3;
+        new HTTP_REQUEST(this).execute(urlWebService);
+
+        //@TODO CURRENT_PROJEKT setzen
+    }
+
+
+    @Override
+    public void processFinish(String output) {
+
+        Context context = getActivity().getApplicationContext();
+
+        switch (MODE)
+        {
+            case 1:
+                MODE = 0;
+
+                CharSequence text = "Projekt erfolgreich angelegt!";
+                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                toast.show();
+
+            break;
+            case 2:
+                MODE = 0;
+                try {
+                    JSONArray jsonArray = new JSONArray(output);
+                    for (int i=0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                        ListName.add(jsonObject.getString("NAME"));
+                        ListID.add(jsonObject.getString("PROJEKT_TOKEN"));
+                        ListNR.add(jsonObject.getString("ID"));
+
+                    }
+
+                    //liste in ein Array verwandeln
+                    //Namen in Array wandeln
+                    String[] arrNamen = new String[ListName.size()];
+                    arrNamen = ListName.toArray(arrNamen);
+                    //IDs in array wandweln
+                    String[] IDArray = new String[ListID.size()];
+                    IDArray = ListID.toArray(IDArray);
+                    //NR in array wandeln
+                    String[] arrNR = new String[ListNR.size()];
+                    arrNR = ListNR.toArray(arrNR);
+                    //Liste aufbauen
+                    Activity activity = getActivity();
+                    CustomListAdapter Listadapter = new CustomListAdapter(activity, arrNamen, arrNR , IDArray);
+                    listView.setAdapter(Listadapter);
+
+                } catch (JSONException e){
+                    System.out.println(e);
+                }
+            break;
+            case 3:
+                MODE = 0;
+                try {
+                    JSONArray jsonArray = new JSONArray(output);
+                    JSONObject jsonObject = jsonArray.getJSONObject(0);
+
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("CURRENT_PROJEKT", jsonObject.getString("PROJEKT_TOKEN"));
+                    editor.apply();
+                }catch (JSONException e){
+                    System.out.println(e);
+                }
+            break;
+        }
+    }
 }
