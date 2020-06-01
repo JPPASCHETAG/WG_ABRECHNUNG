@@ -8,9 +8,6 @@
         android:title="Neuer Eintrag"
         app:showAsAction="ifRoom"/>
 
-    <item
-        android:id="@+id/MONTH_SUMMARY"
-        android:icon="@drawable/format_align_left_black_18dp"
-        android:title="Monatsübersicht" />
+
 
 </menu>

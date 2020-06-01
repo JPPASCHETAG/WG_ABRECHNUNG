@@ -4,13 +4,14 @@
 
     <item
         android:id="@+id/NEW_PROJEKT"
-        android:icon="@drawable/library_add_black_18dp"
+        android:icon="@drawable/add_white_18dp"
         android:title="Neues Projekt anlegen"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/ADD_PROJEKT"
-        android:icon="@drawable/format_align_left_black_18dp"
-        android:title="Vorhandenes Porjekt hinzufügen" />
+        android:icon="@drawable/playlist_add_black_18dp"
+        android:title="Vorhandenes Porjekt hinzufügen"
+        app:showAsAction="ifRoom" />
 
 </menu>
