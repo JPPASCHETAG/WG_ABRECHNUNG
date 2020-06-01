@@ -196,7 +196,6 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
         switch (MODE)
         {
             case 1:
-            case 3:
                 MODE = 0;
 
                 CharSequence text = "Projekt erfolgreich angelegt!";
@@ -235,7 +234,20 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
                 } catch (JSONException e){
                     System.out.println(e);
                 }
+            break;
+            case 3:
+                MODE = 0;
+                try {
+                    JSONArray jsonArray = new JSONArray(output);
+                    JSONObject jsonObject = jsonArray.getJSONObject(0);
 
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("CURRENT_PROJEKT", jsonObject.getString("PROJEKT_TOKEN"));
+                    editor.apply();
+                }catch (JSONException e){
+                    System.out.println(e);
+                }
             break;
         }
     }
