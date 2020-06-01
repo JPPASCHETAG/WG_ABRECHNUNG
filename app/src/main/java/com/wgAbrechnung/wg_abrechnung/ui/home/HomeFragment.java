@@ -21,25 +21,24 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.wgAbrechnung.wg_abrechnung.HTTP_REQUEST;
 import com.wgAbrechnung.wg_abrechnung.HomeListAdapter;
 import com.wgAbrechnung.wg_abrechnung.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
-public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickListener {
+public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickListener, HTTP_REQUEST.AsyncResponse {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String CURRENT_PROJEKT = "";
+    private Integer MODE = 0;
 
     private ListView listView;
     private Toolbar toolbar;
@@ -61,52 +60,10 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
         toolbar = root.findViewById(R.id.toolbar);
         toolbar.setOnMenuItemClickListener(this);
 
-        db.collection(CURRENT_PROJEKT)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()){
 
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-
-                                //den Zweck holen
-                                if(document.getString("ZWECK") != null){
-
-                                    ListZweck.add(document.getString("ZWECK"));
-                                    ListDatum.add(document.getString("DATUM"));
-                                    ListName.add(document.getString("NAME"));
-                                    ListBetrag.add(document.getString("BETRAG"));
-
-                                }
-                            }
-                            //Zweck in Array wandeln
-                            String[] arrZweck = new String[ListZweck.size()];
-                            arrZweck = ListZweck.toArray(arrZweck);
-                            //Datum in Array wandeln
-                            String[] arrDatum = new String[ListDatum.size()];
-                            arrDatum = ListDatum.toArray(arrDatum);
-                            //Namen in Array wandeln
-                            String[] arrName = new String[ListName.size()];
-                            arrName = ListName.toArray(arrName);
-                            //Betrag in Array wandlen
-                            String[] arrBetrag = new String[ListBetrag.size()];
-                            arrBetrag = ListBetrag.toArray(arrBetrag);
-
-                            //ListView füllen
-                            Activity context = getActivity();
-                            HomeListAdapter Listadapter = new HomeListAdapter(context, arrZweck, arrDatum , arrName, arrBetrag);
-                            listView.setAdapter(Listadapter);
-
-                        }else{
-                            //Rückmeldung
-                            Context context = getActivity().getApplicationContext();
-                            CharSequence text = "Fehler beim laden der Eintäge.";
-                            Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                            toast.show();
-                        }
-                    }
-                });
+        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=5&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
+        MODE = 5;
+        new HTTP_REQUEST(this).execute(urlWebService);
 
         return root;
     }
@@ -125,13 +82,10 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
         return strBetrag;
     }
 
-    public void NewEntry(){
-        // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    public void NewEntryDialog(){
 
-        // 2. Chain together various setter methods to set the dialog characteristics
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Einen Eintrag anlegen:");
-        //.setMessage("Eine Nachricht");
 
         LinearLayout layout = new LinearLayout(getActivity().getApplicationContext());
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -163,6 +117,7 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
 
         //Eingabe des Betrags
         final EditText BetragEditText = new EditText(getActivity().getApplicationContext());
+
         BetragEditText.setHint("Betrag");
         BetragEditText.setMaxLines(1);
         layout.addView(BetragEditText);
@@ -172,41 +127,12 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
         builder.setPositiveButton("Hinzufügen", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
-                Map<String, Object> data = new HashMap<>();
-                data.put("ZWECK", ZweckEditText.getText().toString());
-                data.put("DATUM", DateEditText.getText().toString());
-                data.put("NAME", NameEditText.getText().toString());
-                //Betrag formatieren
-                String Betrag = FormatBetrag(BetragEditText.getText().toString());
-                data.put("BETRAG", Betrag);
+                ADD_ENTRY(ZweckEditText.getText().toString(),DateEditText.getText().toString(),NameEditText.getText().toString(),FormatBetrag(BetragEditText.getText().toString()));
 
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("LAST_USED_NAME", NameEditText.getText().toString());
                 editor.apply();
-
-
-                db.collection(CURRENT_PROJEKT).document()
-                        .set(data)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-
-                                Context context = getActivity().getApplicationContext();
-                                CharSequence text = "Eintrag erfolgreich angelegt.";
-                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                toast.show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Context context = getActivity().getApplicationContext();
-                                CharSequence text = "Fehler beim Anlegen des Eintrags.";
-                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                toast.show();
-                            }
-                        });
             }
         });
         builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
@@ -215,21 +141,86 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
             }
         });
 
-// 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void ADD_ENTRY(String strZweck, String strDatum, String strName, String strBetrag) {
+
+        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=4&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
+                urlWebService += "&ZWECK=" + strZweck;
+                urlWebService += "&DATUM=" + strDatum;
+                urlWebService += "&NAME=" + strName;
+                urlWebService += "&BETRAG=" + strBetrag;
+        MODE = 4;
+        new HTTP_REQUEST(this).execute(urlWebService);
+
     }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()){
             case R.id.NEW_ENTRY:
-                NewEntry();
+                NewEntryDialog();
                 break;
             case R.id.MONTH_SUMMARY:
                 //@TODO neue Activität mit graphen etc
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void processFinish(String output) {
+
+        Context context = getActivity().getApplicationContext();
+
+        switch (MODE) {
+            case 4:
+
+                CharSequence text = "Eintrag erfolgreich angelegt!";
+                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                toast.show();
+
+            break;
+            case 5:
+                MODE = 0;
+                try {
+                    JSONArray jsonArray = new JSONArray(output);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                        ListZweck.add(jsonObject.getString("ZWECK"));
+                        ListName.add(jsonObject.getString("NAME"));
+                        ListDatum.add(jsonObject.getString("DATUM"));
+                        ListBetrag.add(jsonObject.getString("BETRAG"));
+
+                    }
+
+                    //Zweck in Array wandeln
+                    String[] arrZweck = new String[ListZweck.size()];
+                    arrZweck = ListZweck.toArray(arrZweck);
+                    //Datum in Array wandeln
+                    String[] arrDatum = new String[ListDatum.size()];
+                    arrDatum = ListDatum.toArray(arrDatum);
+                    //Namen in Array wandeln
+                    String[] arrName = new String[ListName.size()];
+                    arrName = ListName.toArray(arrName);
+                    //Betrag in Array wandlen
+                    String[] arrBetrag = new String[ListBetrag.size()];
+                    arrBetrag = ListBetrag.toArray(arrBetrag);
+
+                    //ListView füllen
+                    Activity activity = getActivity();
+                    HomeListAdapter Listadapter = new HomeListAdapter(activity, arrZweck, arrDatum, arrName, arrBetrag);
+                    listView.setAdapter(Listadapter);
+
+                } catch (JSONException e) {
+                    System.out.println(e);
+                }
+            break;
+
+        }
+
     }
 }
