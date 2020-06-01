@@ -163,9 +163,7 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
             case R.id.NEW_ENTRY:
                 NewEntryDialog();
                 break;
-            case R.id.MONTH_SUMMARY:
-                //@TODO neue Activität mit graphen etc
-                break;
+
         }
         return false;
     }
