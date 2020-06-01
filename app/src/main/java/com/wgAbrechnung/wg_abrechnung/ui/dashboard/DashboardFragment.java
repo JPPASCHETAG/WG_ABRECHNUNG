@@ -50,7 +50,7 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
 
         anyChartView = root.findViewById(R.id.CHART);
 
-        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=6&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
+        String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=6&PROJEKT_TOKEN=" + CURRENT_PROJEKT;
         MODE = 6;
         new HTTP_REQUEST(this).execute(urlWebService);
 

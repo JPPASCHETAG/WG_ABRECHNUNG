@@ -68,7 +68,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
         toolbar.setOnMenuItemClickListener(this);
 
 
-        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=2&USER_TOKEN=" + USER_ID;
+        String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=2&USER_TOKEN=" + USER_ID;
         MODE = 2;
         new HTTP_REQUEST(this).execute(urlWebService);
 
@@ -168,7 +168,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
 
     public void NEW_PROJEKT(String strName, String ProjektID){
 
-        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=1&NAME="+ strName +"&USER_TOKEN=" + USER_ID + "&PROJEKT_TOKEN="+ ProjektID;
+        String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=1&NAME="+ strName +"&USER_TOKEN=" + USER_ID + "&PROJEKT_TOKEN="+ ProjektID;
         MODE = 1;
         new HTTP_REQUEST(this).execute(urlWebService);
 
@@ -180,7 +180,7 @@ public class NotificationsFragment extends Fragment implements Toolbar.OnMenuIte
 
 
     public void ADD_PROJEKT(Long inputNR){
-        String urlWebService = "http://192.168.2.120/AppCOnnect/connect.php?MODE=3&USER_TOKEN=" + USER_ID + "&ID="+ inputNR;
+        String urlWebService = "http://saufkumpanen.ddns.net/AppConnect/connect.php?MODE=3&USER_TOKEN=" + USER_ID + "&ID="+ inputNR;
         MODE = 3;
         new HTTP_REQUEST(this).execute(urlWebService);
 
