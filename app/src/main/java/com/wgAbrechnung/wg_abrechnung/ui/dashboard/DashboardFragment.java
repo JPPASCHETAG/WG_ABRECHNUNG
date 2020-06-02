@@ -106,7 +106,11 @@ public class DashboardFragment extends Fragment implements HTTP_REQUEST.AsyncRes
             String Betrag = "0.00";
             if(sumBetrag > 0){
                 Betrag = String.valueOf(sumBetrag);
-                Betrag = Betrag.substring(0,Betrag.indexOf(".") + 3);
+                if(Betrag.substring(0,Betrag.indexOf(".")).length() <= 2) {
+                    Betrag += "0";
+                }else if(!Betrag.contains(".")){
+                    Betrag += ".00";
+                }
                 Betrag += "€";
             }else{
                 Betrag = "Keine Daten";
